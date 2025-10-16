@@ -539,7 +539,17 @@ class ReproductorVideo:
             self.btn_play_clip.config(text="Pause" if self.clip_playing else "Play")
             
             if self.clip_playing:
-                if pygame.mixer.music.get_busy():
+                # Si no hay audio reproduciéndose, reiniciar desde la posición actual
+                if not pygame.mixer.music.get_busy():
+                    inicio, _ = self.clip_info
+                    pos_actual = (self.clip_current_frame / self.fps) if self.fps > 0 else 0
+                    try:
+                        pygame.mixer.music.load(str(self.audio_path))
+                        pygame.mixer.music.play(start=inicio + pos_actual)
+                        pygame.mixer.music.set_volume(self.volumen.get())
+                    except Exception as e:
+                        print(f"Error al reanudar audio: {e}")
+                else:
                     pygame.mixer.music.unpause()
                 self.actualizar_frame_clip(area_video)
             else:
